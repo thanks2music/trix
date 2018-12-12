@@ -7,7 +7,7 @@ Trix.extend
   normalizeNewlines: (string) ->
     string.replace(/\r\n/g, "\n")
 
-  breakableWhitespacePattern: ///[^\S#{Trix.NON_BREAKING_SPACE}]///
+  breakableWhitespacePattern: ///[^\S#{Trix.IDEOGRAPHIC_SPACE}#{Trix.NON_BREAKING_SPACE}]///
 
   squishBreakableWhitespace: (string) ->
     string

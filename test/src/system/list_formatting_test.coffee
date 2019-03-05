@@ -1,4 +1,4 @@
-{assert, clickToolbarButton, defer, moveCursor, pressKey, test, testGroup, triggerEvent, typeCharacters} = Trix.TestHelpers
+{assert, clickToolbarButton, defer, moveCursor, pressKey, test, testIf, testGroup, triggerEvent, typeCharacters} = Trix.TestHelpers
 
 testGroup "List formatting", template: "editor_empty", ->
   test "creating a new list item", (done) ->
@@ -28,7 +28,21 @@ testGroup "List formatting", template: "editor_empty", ->
             assert.blockAttributes([3, 5], ["bulletList", "bullet"])
             expectDocument("a\n\nb\n")
 
-  test "pressing shift-return at the end of a list item", (expectDocument) ->
+  test "pressing tab increases nesting level, tab+shift decreases nesting level", (expectDocument) ->
+    clickToolbarButton attribute: "bullet", ->
+      typeCharacters "a", ->
+        pressKey "return", ->
+          pressKey "tab", ->
+            typeCharacters "b", ->
+              assert.blockAttributes([0, 1], ["bulletList", "bullet"])
+              assert.blockAttributes([2, 3], ["bulletList", "bullet", "bulletList", "bullet"])
+              defer ->
+                pressShiftTab = triggerEvent(document.activeElement, "keydown", key: "Tab", charCode: 0, keyCode: 9, which: 9, shiftKey: true)
+                assert.blockAttributes([0, 1], ["bulletList", "bullet"])
+                assert.blockAttributes([2, 3], ["bulletList", "bullet"])
+                expectDocument("a\nb\n")
+
+  testIf Trix.config.input.getLevel() is 0, "pressing shift-return at the end of a list item", (expectDocument) ->
     clickToolbarButton attribute: "bullet", ->
       typeCharacters "a", ->
         pressShiftReturn = triggerEvent(document.activeElement, "keydown", charCode: 0, keyCode: 13, which: 13, shiftKey: true)
